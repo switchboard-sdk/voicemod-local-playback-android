@@ -15,8 +15,8 @@ object ExampleProvider {
 
     fun examples(): List<Example> {
         return listOf(
-            Example("Player with Voicemod", PlayerWithVoicemodFragment::class.java as Class<Fragment>),
-            Example("Record, apply Voicemod, Playback", VoicemodAfterRecordingFragment::class.java as Class<Fragment>),
+            Example("Local audio file, Voicemod", PlayerWithVoicemodFragment::class.java as Class<Fragment>),
+            Example("Record, Voicemod, Playback, Export", VoicemodAfterRecordingFragment::class.java as Class<Fragment>),
         )
     }
 }

@@ -4,4 +4,4 @@ package audio.switchboard.voicemodlocalplayback.utils
 // https://docs.switchboard.audio/downloads/
 const val switchboardClientID: String = "clientID"
 const val switchboardClientSecret: String = "clientSecret"
-const val voicemodLicenseKey: String = "QrTb5i2pCF"
+const val voicemodLicenseKey: String = "voicemod key"
