@@ -1,4 +1,4 @@
-package audio.switchboard.voicemodlocalplayback
+package audio.switchboard.voicemodlocalplayback.playerwithvoicemod
 
 import android.content.Context
 import com.synervoz.switchboard.sdk.Codec
