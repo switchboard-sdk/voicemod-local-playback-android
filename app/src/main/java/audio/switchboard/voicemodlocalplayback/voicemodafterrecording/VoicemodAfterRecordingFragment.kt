@@ -6,52 +6,66 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
-import audio.switchboard.voicemodlocalplayback.playerwithvoicemod.PlayerWithVoicemodAudioEngine
 import audio.switchboard.voicemodlocalplayback.utils.voices
-import com.synervoz.switchboard.sdk.Codec
-import com.synervoz.switchboard.sdk.utils.AssetLoader
 import com.synervoz.switchboard.sdk.utils.FileExporter
-import com.synervoz.switchboard.ui.customviews.SBAudioFileView
 import com.synervoz.switchboard.ui.customviews.SBButtonView
 import com.synervoz.switchboard.ui.customviews.SBSpinnerView
 import com.synervoz.switchboard.ui.customviews.SBSwitchView
 import com.synervoz.switchboard.ui.customviews.SBTextView
 import com.synervoz.switchboard.ui.customviews.containers.SBHorizontalStack
 import com.synervoz.switchboard.ui.customviews.containers.SBVerticalStack
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
-class VoicemodAfterRecordingFragment: Fragment() {
+class VoicemodAfterRecordingFragment : Fragment() {
 
     private lateinit var example: VoicemodAfterRecordingAudioEngine
+    lateinit var exportButton: SBButtonView
+    private val uiScope = CoroutineScope(Dispatchers.Main)
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
 
-
+        exportButton = SBButtonView(
+            context = requireContext(),
+            title = "Export"
+        ) { button: Button ->
+            exportFile()
+        }
         example = VoicemodAfterRecordingAudioEngine(requireContext())
-        example.voicemodNode.loadVoice("baby")
-        val view =  SBVerticalStack(requireContext()).addSBViews(listOf(
+        example.loadVoiceFilter("baby")
+        val view = SBVerticalStack(requireContext()).addSBViews(listOf(
             SBSpinnerView(
                 requireContext(),
                 title = "Voice",
                 0,
                 voices.map { it }) { selectedVoice: String ->
-                example.voicemodNode.loadVoice(selectedVoice)
+                example.loadVoiceFilter(selectedVoice)
             },
-            SBSwitchView(context = requireContext(), title = "Bypass" , initialState = example.voicemodNode.bypassEnabled) { isChecked ->
+            SBSwitchView(
+                context = requireContext(),
+                title = "Bypass",
+                initialState = example.voicemodNode.bypassEnabled
+            ) { isChecked ->
                 example.voicemodNode.bypassEnabled = isChecked
             },
             SBTextView(requireContext(), "Recorder"),
             SBHorizontalStack(requireContext())
                 .addSBViews(
                     listOf(
-                        SBButtonView(context = requireContext(),
-                            title = "Start") { button: Button ->
+                        SBButtonView(
+                            context = requireContext(),
+                            title = "Start"
+                        ) { button: Button ->
                             example.record()
                         },
-                        SBButtonView(context = requireContext(),
-                            title = "Stop") { button: Button ->
+                        SBButtonView(
+                            context = requireContext(),
+                            title = "Stop"
+                        ) { button: Button ->
                             example.stopRecord()
                         }
                     )
@@ -60,33 +74,35 @@ class VoicemodAfterRecordingFragment: Fragment() {
             SBHorizontalStack(requireContext())
                 .addSBViews(
                     listOf(
-                        SBButtonView(context = requireContext(),
-                            title = "Start") { button: Button ->
+                        SBButtonView(
+                            context = requireContext(),
+                            title = "Start"
+                        ) { button: Button ->
                             example.play()
                         },
-                        SBButtonView(context = requireContext(),
-                            title = "Stop") { button: Button ->
+                        SBButtonView(
+                            context = requireContext(),
+                            title = "Stop"
+                        ) { button: Button ->
                             example.stopPlayer()
                         }
                     )
                 ),
-            SBButtonView(
-                context = requireContext(),
-                title = "Export Recording"
-            ) { button: Button ->
-                exportFile(example.recordingFilePath)
-            }
+            exportButton
         )).getView()
         return view.rootView
     }
 
-    private fun exportFile(filePath: String) {
+    private fun exportFile() {
+        example.stopAudioEngine()
+        val filePath = example.renderMix()
         FileExporter.export(requireActivity(), filePath)
+        example.startAudioEngine()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        example.stop()
+        example.stopAudioEngine()
         example.close()
     }
 }
