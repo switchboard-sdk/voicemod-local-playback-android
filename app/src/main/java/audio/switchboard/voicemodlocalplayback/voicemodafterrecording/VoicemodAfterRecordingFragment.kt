@@ -21,8 +21,6 @@ class VoicemodAfterRecordingFragment : Fragment() {
 
     private lateinit var example: VoicemodAfterRecordingAudioEngine
     lateinit var exportButton: SBButtonView
-    private val uiScope = CoroutineScope(Dispatchers.Main)
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

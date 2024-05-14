@@ -18,9 +18,8 @@ class VoicemodAfterRecordingAudioEngine(context: Context) {
     val offlineGraphRenderer = OfflineGraphRenderer()
     val audioEngine = AudioEngine(context)
 
-    var audioFileFormat: Codec = Codec.WAV
-    lateinit var recordingFilePath: String
-    var currentVoicemodFilter = ""
+    var audioFileFormat: Codec = Codec.MP3
+    lateinit var rawRecordingFilePath: String
     private var mixedFilePath =
         SwitchboardSDK.getTemporaryDirectoryPath() + "mix." + audioFileFormat.fileExtension
 
@@ -44,10 +43,10 @@ class VoicemodAfterRecordingAudioEngine(context: Context) {
 
     fun stopRecord() {
         audioEngine.microphoneEnabled = false
-        recordingFilePath =
+        rawRecordingFilePath =
             SwitchboardSDK.getTemporaryDirectoryPath() + "test_recording" + "." + audioFileFormat.fileExtension
-        recorderNode.stop(recordingFilePath, audioFileFormat)
-        audioPlayerNode.load(recordingFilePath, audioFileFormat)
+        recorderNode.stop(rawRecordingFilePath, audioFileFormat)
+        audioPlayerNode.load(rawRecordingFilePath, audioFileFormat)
     }
 
     fun play() {
@@ -71,13 +70,8 @@ class VoicemodAfterRecordingAudioEngine(context: Context) {
         audioEngine.start(audioGraph)
     }
 
-    fun setPlayerPosition(position: Double) {
-        audioPlayerNode.position = position
-    }
-
     fun loadVoiceFilter(voiceFilter: String) {
-        currentVoicemodFilter = voiceFilter
-        voicemodNode.loadVoice(currentVoicemodFilter)
+        voicemodNode.loadVoice(voiceFilter)
     }
 
     fun renderMix(): String {
