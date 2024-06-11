@@ -4,9 +4,12 @@ import android.content.Context
 import com.synervoz.switchboard.sdk.Codec
 import com.synervoz.switchboard.sdk.SwitchboardSDK
 import com.synervoz.switchboard.sdk.audioengine.AudioEngine
+import com.synervoz.switchboard.sdk.audioengine.PerformanceMode
 import com.synervoz.switchboard.sdk.audiograph.AudioGraph
 import com.synervoz.switchboard.sdk.audiograph.OfflineGraphRenderer
 import com.synervoz.switchboard.sdk.audiographnodes.AudioPlayerNode
+import com.synervoz.switchboard.sdk.audiographnodes.MonoToMultiChannelNode
+import com.synervoz.switchboard.sdk.audiographnodes.MultiChannelToMonoNode
 import com.synervoz.switchboard.sdk.audiographnodes.RecorderNode
 import com.synervoz.switchboardvoicemod.audiographnodes.VoicemodNode
 
@@ -15,8 +18,10 @@ class VoicemodAfterRecordingAudioEngine(context: Context) {
     val audioPlayerNode = AudioPlayerNode()
     val recorderNode = RecorderNode()
     val voicemodNode = VoicemodNode()
+    val monoToMultiChannelNode = MonoToMultiChannelNode()
+    val multiChannelToMonoNode = MultiChannelToMonoNode()
     val offlineGraphRenderer = OfflineGraphRenderer()
-    val audioEngine = AudioEngine(context)
+    val audioEngine = AudioEngine(context, performanceMode = PerformanceMode.LOW_LATENCY)
 
     var audioFileFormat: Codec = Codec.MP3
     lateinit var rawRecordingFilePath: String
@@ -27,10 +32,15 @@ class VoicemodAfterRecordingAudioEngine(context: Context) {
         audioGraph.addNode(audioPlayerNode)
         audioGraph.addNode(recorderNode)
         audioGraph.addNode(voicemodNode)
+        audioGraph.addNode(monoToMultiChannelNode)
+        audioGraph.addNode(multiChannelToMonoNode)
 
         audioGraph.connect(audioGraph.inputNode, recorderNode)
-        audioGraph.connect(audioPlayerNode, voicemodNode)
-        audioGraph.connect(voicemodNode, audioGraph.outputNode)
+        audioGraph.connect(audioPlayerNode, multiChannelToMonoNode)
+        audioGraph.connect(multiChannelToMonoNode, voicemodNode)
+        audioGraph.connect(voicemodNode, monoToMultiChannelNode)
+        audioGraph.connect(monoToMultiChannelNode, audioGraph.outputNode)
+
 
         startAudioEngine()
     }

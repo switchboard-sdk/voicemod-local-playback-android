@@ -43,6 +43,9 @@ class VoicemodAfterRecordingFragment : Fragment() {
                 voices.map { it }) { selectedVoice: String ->
                 example.loadVoiceFilter(selectedVoice)
             },
+            SBSwitchView(context = requireContext(), title = "Background Sounds" , initialState = example.voicemodNode.backgroundSoundsEnabled) { isChecked ->
+                example.voicemodNode.backgroundSoundsEnabled = isChecked
+            },
             SBSwitchView(
                 context = requireContext(),
                 title = "Bypass",

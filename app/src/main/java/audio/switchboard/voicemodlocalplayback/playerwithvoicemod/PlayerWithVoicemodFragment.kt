@@ -55,6 +55,9 @@ class PlayerWithVoicemodFragment : Fragment() {
                 voices.map { it }) { selectedVoice: String ->
                 example.voicemodNode.loadVoice(selectedVoice)
             },
+            SBSwitchView(context = requireContext(), title = "Background Sounds" , initialState = example.voicemodNode.backgroundSoundsEnabled) { isChecked ->
+                example.voicemodNode.backgroundSoundsEnabled = isChecked
+            },
             SBSwitchView(context = requireContext(), title = "Bypass" , initialState = example.voicemodNode.bypassEnabled) { isChecked ->
                 example.voicemodNode.bypassEnabled = isChecked
             },
