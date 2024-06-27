@@ -20,7 +20,6 @@ class VoicemodAfterRecordingAudioEngine(context: Context) {
     val voicemodNode = VoicemodNode()
     val monoToMultiChannelNode = MonoToMultiChannelNode()
     val multiChannelToMonoNode = MultiChannelToMonoNode()
-    val offlineGraphRenderer = OfflineGraphRenderer()
     val audioEngine = AudioEngine(context, performanceMode = PerformanceMode.LOW_LATENCY)
 
     var audioFileFormat: Codec = Codec.MP3
@@ -95,8 +94,13 @@ class VoicemodAfterRecordingAudioEngine(context: Context) {
         val sampleRate = audioPlayerNode.getSourceSampleRate()
         audioPlayerNode.position = 0.0
         audioPlayerNode.play()
+        val offlineGraphRenderer = OfflineGraphRenderer()
         offlineGraphRenderer.setSampleRate(sampleRate)
-        offlineGraphRenderer.setMaxNumberOfSecondsToRender(audioPlayerNode.getDuration())
+        // The duration of additional silence (in seconds) added to the end of the audio playback.
+        // This padding ensures that the tail of any applied audio effects has sufficient time to decay naturally,
+        // preventing abrupt cutoffs and ensuring a smooth and natural fade-out of the effects.
+        val effectTailPaddingSeconds = 1.0
+        offlineGraphRenderer.setMaxNumberOfSecondsToRender(audioPlayerNode.getDuration() + effectTailPaddingSeconds)
         offlineGraphRenderer.processGraph(audioGraphToRender, mixedFilePath, audioFileFormat)
         audioPlayerNode.stop()
 
