@@ -11,6 +11,7 @@ import com.synervoz.switchboard.sdk.audiographnodes.AudioPlayerNode
 import com.synervoz.switchboard.sdk.audiographnodes.MonoToMultiChannelNode
 import com.synervoz.switchboard.sdk.audiographnodes.MultiChannelToMonoNode
 import com.synervoz.switchboard.sdk.audiographnodes.RecorderNode
+import com.synervoz.switchboardrnnoise.audiographnodes.RNNoiseFilterNode
 import com.synervoz.switchboardvoicemod.audiographnodes.VoicemodNode
 
 class VoicemodAfterRecordingAudioEngine(context: Context) {
@@ -20,6 +21,7 @@ class VoicemodAfterRecordingAudioEngine(context: Context) {
     val voicemodNode = VoicemodNode()
     val monoToMultiChannelNode = MonoToMultiChannelNode()
     val multiChannelToMonoNode = MultiChannelToMonoNode()
+    val noiseFilterNode = RNNoiseFilterNode()
     val audioEngine = AudioEngine(context, performanceMode = PerformanceMode.LOW_LATENCY)
 
     var audioFileFormat: Codec = Codec.MP3
@@ -27,19 +29,27 @@ class VoicemodAfterRecordingAudioEngine(context: Context) {
     private var mixedFilePath =
         SwitchboardSDK.getTemporaryDirectoryPath() + "mix." + audioFileFormat.fileExtension
 
+    var noiseFilterEnabled: Boolean
+        get() = noiseFilterNode.isEnabled
+        set(value) {
+            noiseFilterNode.isEnabled = value
+        }
+
     init {
         audioGraph.addNode(audioPlayerNode)
         audioGraph.addNode(recorderNode)
         audioGraph.addNode(voicemodNode)
         audioGraph.addNode(monoToMultiChannelNode)
         audioGraph.addNode(multiChannelToMonoNode)
+        audioGraph.addNode(noiseFilterNode)
 
         audioGraph.connect(audioGraph.inputNode, recorderNode)
         audioGraph.connect(audioPlayerNode, multiChannelToMonoNode)
-        audioGraph.connect(multiChannelToMonoNode, voicemodNode)
+        audioGraph.connect(multiChannelToMonoNode, noiseFilterNode)
+        audioGraph.connect(noiseFilterNode, voicemodNode)
         audioGraph.connect(voicemodNode, monoToMultiChannelNode)
         audioGraph.connect(monoToMultiChannelNode, audioGraph.outputNode)
-
+        noiseFilterNode.isEnabled = false
 
         startAudioEngine()
     }
@@ -87,9 +97,15 @@ class VoicemodAfterRecordingAudioEngine(context: Context) {
         val audioGraphToRender = AudioGraph()
         audioGraphToRender.addNode(audioPlayerNode)
         audioGraphToRender.addNode(voicemodNode)
+        audioGraphToRender.addNode(monoToMultiChannelNode)
+        audioGraphToRender.addNode(multiChannelToMonoNode)
+        audioGraphToRender.addNode(noiseFilterNode)
 
-        audioGraphToRender.connect(audioPlayerNode, voicemodNode)
-        audioGraphToRender.connect(voicemodNode, audioGraphToRender.outputNode)
+        audioGraphToRender.connect(audioPlayerNode, multiChannelToMonoNode)
+        audioGraphToRender.connect(multiChannelToMonoNode, noiseFilterNode)
+        audioGraphToRender.connect(noiseFilterNode, voicemodNode)
+        audioGraphToRender.connect(voicemodNode, monoToMultiChannelNode)
+        audioGraphToRender.connect(monoToMultiChannelNode, audioGraphToRender.outputNode)
 
         val sampleRate = audioPlayerNode.getSourceSampleRate()
         audioPlayerNode.position = 0.0

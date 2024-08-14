@@ -48,10 +48,17 @@ class VoicemodAfterRecordingFragment : Fragment() {
             },
             SBSwitchView(
                 context = requireContext(),
-                title = "Bypass",
+                title = "Bypass effects",
                 initialState = example.voicemodNode.bypassEnabled
             ) { isChecked ->
                 example.voicemodNode.bypassEnabled = isChecked
+            },
+            SBSwitchView(
+                context = requireContext(),
+                title = "Noise filter",
+                initialState = example.noiseFilterEnabled
+            ) { isChecked ->
+                example.noiseFilterEnabled = isChecked
             },
             SBTextView(requireContext(), "Recorder"),
             SBHorizontalStack(requireContext())

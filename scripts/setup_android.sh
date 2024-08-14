@@ -12,4 +12,5 @@ pushd "${SCRIPT_DIR}/../libs"
 wget "https://switchboard-sdk-public.s3.amazonaws.com/builds/release/${SDK_VERSION}/android/SwitchboardSDK.aar"
 wget "https://switchboard-sdk-public.s3.amazonaws.com/builds/release/${SDK_VERSION}/android/SwitchboardVoicemod.aar"
 wget "https://switchboard-sdk-public.s3.amazonaws.com/builds/release/${SDK_VERSION}/android/SwitchboardUI.aar"
+wget "https://switchboard-sdk-public.s3.amazonaws.com/builds/release/${SDK_VERSION}/android/SwitchboardRNNoise.aar"
 popd

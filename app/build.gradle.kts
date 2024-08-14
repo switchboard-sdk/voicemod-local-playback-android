@@ -51,6 +51,7 @@ dependencies {
     implementation(files("../libs/SwitchboardSDK.aar"))
     implementation(files("../libs/SwitchboardVoicemod.aar"))
     implementation(files("../libs/SwitchboardUI.aar"))
+    implementation(files("../libs/SwitchboardRNNoise.aar"))
 
 
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
